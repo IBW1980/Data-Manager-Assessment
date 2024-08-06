@@ -1,0 +1,84 @@
+# Data Preparation
+import pandas as pd
+
+# Load the dataset
+file_path = '/mnt/data/Copy of profiles4technicalassessment.xlsx'
+data = pd.read_excel(file_path)
+
+# Count the number of missing values in the County column before filling 
+missing_count_before = data['County'].isna().sum() 
+
+# Fill missing values with 'Unknown' 
+data['County'].fillna('Unknown', inplace=True) 
+
+# Count the number of 'Unknown' values in the County column after filling
+ unknown_count_after = data[data['County'] == 'Unknown'].shape[0]
+
+
+# Step 1: Performance of Organizers/Campaign Directors
+
+# Count contacts per parentEid (organizers and campaign directors)
+performance = data[data['role'] == 'contact'].groupby('parentEid').size().reset_index(name='contact_count')
+
+# Merge with main data to get roles
+performance = performance.merge(data[['eid', 'role']], left_on='parentEid', right_on='eid', how='left')
+
+# Filter for organizers and campaign directors
+performance = performance[performance['role'].isin(['organizer', 'campaignDirector'])]
+
+# Display the performance summary
+performance_summary = performance[['parentEid', 'role', 'contact_count']]
+
+# Step 2: County Analysis
+
+# Count contacts per county
+county_contacts = data[data['role'] == 'contact'].groupby('County').size().reset_index(name='contact_count')
+
+# Identify the county with the highest number of contacts
+highest_contact_county = county_contacts.loc[county_contacts['contact_count'].idxmax()]
+
+Visualization
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+file_path = '/mnt/data/Copy of profiles4technicalassessment.xlsx'
+data = pd.read_excel(file_path)
+
+# Handling missing values in County column
+data['County'].fillna('Unknown', inplace=True)
+
+# Identify the top 10 counties with the highest number of contacts
+top_10_counties = data[data['role'] == 'contact'].groupby('County').size().reset_index(name='contact_count').nlargest(10, 'contact_count')
+
+# Set the style and palette for the plot
+sns.set(style="whitegrid")
+palette = sns.color_palette("magma", len(top_10_counties))
+
+# Bar Chart for Contact Distribution by Top 10 Counties
+plt.figure(figsize=(12, 8))
+bar_plot = sns.barplot(x='contact_count', y='County', data=top_10_counties, palette=palette, edgecolor="0.2")
+bar_plot.set_title('Contact Distribution by Top 10 Counties', fontsize=15, weight='bold')
+bar_plot.set_xlabel('Number of Contacts', fontsize=12)
+bar_plot.set_ylabel('County', fontsize=12)
+plt.show()
+
+
+Summary of Findings
+1. Performance of Organizers and Campaign Directors
+Top Performers:
+    * Campaign Director: u-132-18147 with 112 contacts.
+    * Organizer: u-132-18348 with 106 contacts.
+These two individuals have the highest number of contacts, indicating their strong performance in engaging, retaining and managing their volunteers.
+
+2. County with the Highest Number of Contacts
+Jefferson County has the highest number of contacts, with a total of 9759 contacts, indicating significant engagement and outreach activities in this region.
+However, the number of missing values in the County column is 3625. Those missing valued were assigned 'Unknown' 
+
+Visualizations (Bar Chart)
+1. Performance of Organizers and Campaign Directors: This chart highlights the number of contacts made by each organizer and campaign director, showcasing the top 10 performers.
+2. Contact Distribution by County: This chart highlight the contact distribution by the top 10 counties, with Jefferson County leading significantly.
+
+Conclusion
+An analysis of the dataset provides some insights into the performance of key individuals and the effectiveness of outreach activities across different counties. The data highlights the importance of strategic planning and focused efforts in high-performing regions like Jefferson County. I look forward to discussing the findings with you both in more detail.
